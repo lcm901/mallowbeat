@@ -70,12 +70,11 @@
     };
   }
 
-  function monoSample(buffer, index) {
-    const i = clamp(index | 0, 0, buffer.length - 1);
+  function monoSample(channelData, length, index) {
+    const i = clamp(index | 0, 0, length - 1);
     let v = 0;
-    const channels = Math.max(1, buffer.numberOfChannels || 1);
-    for (let c = 0; c < channels; c++) v += buffer.getChannelData(c)[i] || 0;
-    return v / channels;
+    for (let c = 0; c < channelData.length; c++) v += channelData[c][i] || 0;
+    return v / Math.max(1, channelData.length);
   }
 
   /**
@@ -92,6 +91,8 @@
     const textureRaw = new Float32Array(frameCount);
     const asymmetryRaw = new Float32Array(frameCount);
     const sampleRate = buffer.sampleRate;
+    const channelData = [];
+    for (let c = 0; c < Math.max(1, buffer.numberOfChannels || 1); c++) channelData.push(buffer.getChannelData(c));
     const frameSamples = sampleRate / fps;
     const baseSample = Math.floor(start * sampleRate);
 
@@ -107,7 +108,7 @@
       let positive = 0;
       let last = previousFrameValue;
       for (let p = 0; p < count; p++) {
-        const sample = monoSample(buffer, frameStart + Math.floor((p + 0.5) * step));
+        const sample = monoSample(channelData, buffer.length, frameStart + Math.floor((p + 0.5) * step));
         sumSq += sample * sample;
         diff += Math.abs(sample - last);
         if (sample > 0) positive++;
@@ -470,10 +471,12 @@
     return { notes, noteRate, intensity };
   }
 
-  function analyzeAudioBuffer(buffer, seedText) {
+  function analyzeAudioBuffer(buffer, seedText, options = {}) {
+    const mobile = !!options.mobile;
+    const longTrack = buffer.duration > 8 * 60;
     const detailed = extractEnvelope(buffer, {
-      fps: 50,
-      probes: 84,
+      fps: mobile ? (longTrack ? 30 : 36) : 50,
+      probes: mobile ? (longTrack ? 40 : 48) : 84,
       start: 0,
       duration: buffer.duration,
     });

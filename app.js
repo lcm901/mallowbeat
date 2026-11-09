@@ -29,9 +29,39 @@
 
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let audioContext = null;
-  if (AudioContextClass) {
+
+  function ensureAudioContext() {
+    if (audioContext && audioContext.state !== "closed") return audioContext;
+    if (!AudioContextClass) return null;
     try { audioContext = new AudioContextClass({ latencyHint: "interactive" }); }
     catch (_) { audioContext = new AudioContextClass(); }
+    return audioContext;
+  }
+
+  function nextPaint() {
+    return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
+  function withTimeout(promise, ms, message) {
+    let timer = 0;
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), ms);
+      }),
+    ]).finally(() => clearTimeout(timer));
+  }
+
+  function decodeAudioDataCompat(context, bytes) {
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const ok = (buffer) => { if (!settled) { settled = true; resolve(buffer); } };
+      const fail = (error) => { if (!settled) { settled = true; reject(error || new Error("Audio decoding failed.")); } };
+      try {
+        const maybePromise = context.decodeAudioData(bytes.slice(0), ok, fail);
+        if (maybePromise && typeof maybePromise.then === "function") maybePromise.then(ok, fail);
+      } catch (error) { fail(error); }
+    });
   }
 
   const ctx = els.canvas.getContext("2d", { alpha: false, desynchronized: true });
@@ -121,10 +151,27 @@
 
   async function decodeTrack(track, progressStart, progressEnd) {
     if (!track || !track.file) throw new Error("Choose a song from Files first.");
-    els.loadingBar.style.width = `${progressStart * 100}%`;
-    const bytes = await track.file.arrayBuffer();
-    els.loadingBar.style.width = `${(progressStart + (progressEnd - progressStart) * 0.70) * 100}%`;
-    const decoded = await audioContext.decodeAudioData(bytes.slice(0));
+    const context = ensureAudioContext();
+    if (!context) throw new Error("This browser does not support the Web Audio features needed by the game.");
+
+    loading(`Opening ${friendlyTitle(track.name)}…`, progressStart);
+    await nextPaint();
+    const bytes = await withTimeout(
+      track.file.arrayBuffer(),
+      15000,
+      "Mallowbeat could not finish reading this file. Try a smaller MP3 or M4A."
+    );
+
+    loading(`Decoding ${friendlyTitle(track.name)}…`, progressStart + (progressEnd - progressStart) * 0.45);
+    await nextPaint();
+    const decoded = await withTimeout(
+      decodeAudioDataCompat(context, bytes),
+      30000,
+      "This song took too long to decode on this iPhone. Try another MP3/M4A or re-export the file."
+    );
+    if (!decoded || !Number.isFinite(decoded.duration) || decoded.duration < 1) {
+      throw new Error("This audio file decoded incorrectly. Try another MP3 or M4A.");
+    }
     els.loadingBar.style.width = `${progressEnd * 100}%`;
     return decoded;
   }
@@ -144,7 +191,7 @@
   }
 
   async function curate({ preferDifferent = false } = {}) {
-    if (!audioContext) {
+    if (!ensureAudioContext()) {
       setState("empty");
       showToast("This browser does not support the Web Audio features needed by the game.", 10);
       return;
@@ -169,7 +216,7 @@
         loading(`Listening to ${friendlyTitle(track.name)}…`, startP);
         try {
           const buffer = await decodeTrack(track, startP, endP);
-          const score = A.quickTrackScore(buffer);
+          const score = pool.length === 1 ? 1 : A.quickTrackScore(buffer);
           if (!best || score > best.score) best = { track, buffer, score };
         } catch (error) {
           console.warn("Skipped track", track.name, error);
@@ -178,9 +225,9 @@
       }
 
       if (!best) throw new Error("The MP3 files could not be decoded by this browser.");
-      loading("Mapping the whole song…", 0.72);
-      await new Promise((resolve) => setTimeout(resolve, 35));
-      const analysis = A.analyzeAudioBuffer(best.buffer, `${best.track.name}|mix${mixVariation}`);
+      loading("Finding the rhythm across the whole song…", 0.72);
+      await nextPaint();
+      const analysis = A.analyzeAudioBuffer(best.buffer, `${best.track.name}|mix${mixVariation}`, { mobile: true });
       selection = { ...best, analysis };
       currentTrackName = best.track.name;
       loading("Shaping flowers, bows, clovers and stars…", 0.96);
@@ -288,7 +335,14 @@
 
   async function startGame() {
     if (!selection) return;
-    await audioContext.resume();
+    const context = ensureAudioContext();
+    if (!context) return showToast("Audio is unavailable in this browser.", 7);
+    try {
+      await withTimeout(context.resume(), 5000, "Tap Play again to enable audio on this iPhone.");
+    } catch (error) {
+      showToast(error.message, 7);
+      return;
+    }
     game = makeRuntimeGame();
     setState("game");
     els.pauseOverlay.classList.remove("active");
@@ -328,7 +382,14 @@
 
   async function resumeGame() {
     if (!game || !game.paused) return;
-    await audioContext.resume();
+    const context = ensureAudioContext();
+    if (!context) return;
+    try {
+      await withTimeout(context.resume(), 5000, "Tap Resume again to enable audio.");
+    } catch (error) {
+      showToast(error.message, 7);
+      return;
+    }
     els.pauseOverlay.classList.remove("active");
     const elapsed = game.pausedElapsed;
     game.paused = false;
@@ -447,8 +508,10 @@
   }
 
   async function testPercussion() {
-    if (!audioContext) return;
-    await audioContext.resume();
+    const context = ensureAudioContext();
+    if (!context) return;
+    try { await withTimeout(context.resume(), 5000, "Tap Try again to enable audio."); }
+    catch (error) { showToast(error.message, 7); return; }
     if (drumPrefs.preset === "off" || drumPrefs.volume <= 0) {
       showToast("Key sound is currently off.", 2.5);
       return;
@@ -973,10 +1036,20 @@
       showToast("Please choose an audio file smaller than 220 MB.", 7);
       return;
     }
+    loading(`Opening ${friendlyTitle(file.name)}…`, 0.02);
+    await nextPaint();
+    const context = ensureAudioContext();
+    if (!context) {
+      setState("empty");
+      showToast("This browser does not support the Web Audio features needed by the game.", 10);
+      return;
+    }
+    // On iOS Safari, resume() can remain pending after a file-picker change event.
+    // Ask it to resume, but never block file decoding/analysis on that promise.
+    context.resume().catch(() => {});
     tracks = [{ name: file.name, size: file.size, file }];
     currentTrackName = null;
     mixVariation = 0;
-    await audioContext.resume().catch(() => {});
     await curate();
   }
 

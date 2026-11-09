@@ -1,7 +1,3 @@
-Mallowbeat 2.0 — Full Song Edition
+Mallowbeat Mobile Final — Hotfix 1
 Generated: 2026-11-09
-Runtime: local Python server + browser Web Audio
-Network services: none
-Bundled third-party assets/libraries: none
-Default controls: A S  K L
-Default key sound: quiet Jazz kit
+Fixes: iOS file-picker AudioContext stall, decode timeouts/progress, faster mobile full-song analysis, cache refresh
