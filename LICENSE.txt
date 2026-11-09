@@ -1,0 +1,6 @@
+Mallowbeat 2.0
+
+All source code, interface artwork, procedural vector shapes, synthesized key
+sounds, and visual effects in this build were created for Mallowbeat. No
+third-party art, audio, fonts, runtime libraries, or online services are
+bundled. The player's own MP3 files are not copied, modified, or uploaded.

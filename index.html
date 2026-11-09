@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#fffafb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mallowbeat">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <title>Mallowbeat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+
+    <svg class="motif butterfly b1" viewBox="0 0 100 80"><path d="M50 41C39 12 11 6 9 26c-1 14 16 23 38 20M50 41C61 12 89 6 91 26c1 14-16 23-38 20M48 45C32 43 18 48 21 61c3 11 18 8 29-12M52 45c16-2 30 3 27 16-3 11-18 8-29-12M50 31v30"/></svg>
+    <svg class="motif butterfly b2" viewBox="0 0 100 80"><path d="M50 41C39 12 11 6 9 26c-1 14 16 23 38 20M50 41C61 12 89 6 91 26c1 14-16 23-38 20M48 45C32 43 18 48 21 61c3 11 18 8 29-12M52 45c16-2 30 3 27 16-3 11-18 8-29-12M50 31v30"/></svg>
+    <svg class="motif butterfly b3" viewBox="0 0 100 80"><path d="M50 41C39 12 11 6 9 26c-1 14 16 23 38 20M50 41C61 12 89 6 91 26c1 14-16 23-38 20M48 45C32 43 18 48 21 61c3 11 18 8 29-12M52 45c16-2 30 3 27 16-3 11-18 8-29-12M50 31v30"/></svg>
+    <svg class="motif flower f1" viewBox="0 0 100 100"><path d="M50 50C28 47 18 28 31 18c12-9 22 4 20 25 2-21 13-34 25-24 13 11 1 29-20 32 21 2 34 16 23 28-11 12-28-1-31-22-2 21-16 34-28 23-12-11 1-28 22-31Z"/></svg>
+    <svg class="motif flower f2" viewBox="0 0 100 100"><path d="M50 50C28 47 18 28 31 18c12-9 22 4 20 25 2-21 13-34 25-24 13 11 1 29-20 32 21 2 34 16 23 28-11 12-28-1-31-22-2 21-16 34-28 23-12-11 1-28 22-31Z"/></svg>
+    <svg class="motif flower f3" viewBox="0 0 100 100"><path d="M50 50C28 47 18 28 31 18c12-9 22 4 20 25 2-21 13-34 25-24 13 11 1 29-20 32 21 2 34 16 23 28-11 12-28-1-31-22-2 21-16 34-28 23-12-11 1-28 22-31Z"/></svg>
+  </div>
+
+  <main id="app" class="app-shell">
+    <section id="loadingScreen" class="screen active" aria-live="polite">
+      <div class="logo-lockup">
+        <div class="mallow-mark" aria-hidden="true">
+          <span class="ear left"></span><span class="ear right"></span>
+          <span class="face"><i></i><i></i><b>⌣</b></span>
+          <span class="bow"><em></em><em></em></span>
+        </div>
+        <h1>Mallowbeat</h1>
+        <p class="tagline">your whole song, turned into a tiny pink rhythm game</p>
+      </div>
+      <div class="loading-card glass-card">
+        <div class="spinner" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p id="loadingText">Looking for music…</p>
+        <div class="loading-track"><span id="loadingBar"></span></div>
+      </div>
+    </section>
+
+    <section id="emptyScreen" class="screen active" aria-live="polite">
+      <div class="glass-card message-card mobile-welcome">
+        <div class="folder-heart" aria-hidden="true">♡</div>
+        <h2>Choose a song</h2>
+        <p>Pick an MP3 or M4A from Files. Mallowbeat analyzes it here on your device — your song is never uploaded.</p>
+        <label class="primary-button file-button" for="songPicker">Choose Song</label>
+        <input id="songPicker" class="visually-hidden" type="file" accept=".mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a">
+        <p class="privacy-note">Works offline after the web app has been installed once.</p>
+      </div>
+    </section>
+
+    <section id="readyScreen" class="screen" aria-live="polite">
+      <div class="ready-layout">
+        <div class="hero-card glass-card">
+          <div class="mini-mallow" aria-hidden="true"><span>♡</span></div>
+          <p class="eyebrow">YOUR FULL-SONG BLOOM IS READY</p>
+          <h2 id="readyTitle">Selected track</h2>
+          <p id="readySub" class="ready-sub">The whole song has been mapped into a playable arrangement.</p>
+          <div class="session-pills">
+            <span id="segmentPill">00:00</span>
+            <span id="tempoPill">— BPM</span>
+            <span id="chartPill">— notes</span>
+          </div>
+          <button id="startButton" class="primary-button giant">Play the whole song</button>
+          <p class="key-guide mobile-guide"><span>Tap the four lanes with your thumbs</span></p>
+        </div>
+
+        <aside class="tip-card glass-card">
+          <div class="shape-preview" aria-hidden="true">
+            <span class="preview-symbol">
+              <svg viewBox="0 0 100 100"><g><ellipse cx="50" cy="26" rx="18" ry="25"/><ellipse cx="73" cy="43" rx="18" ry="25" transform="rotate(72 73 43)"/><ellipse cx="64" cy="70" rx="18" ry="25" transform="rotate(144 64 70)"/><ellipse cx="36" cy="70" rx="18" ry="25" transform="rotate(216 36 70)"/><ellipse cx="27" cy="43" rx="18" ry="25" transform="rotate(288 27 43)"/><circle cx="50" cy="51" r="17"/></g></svg>
+            </span>
+            <span class="preview-symbol">
+              <svg viewBox="0 0 100 100"><path d="M45 45C32 18 5 20 8 49c3 25 27 24 39 5 2-3 2-6-2-9Zm10 0c13-27 40-25 37 4-3 25-27 24-39 5-2-3-2-6 2-9Z"/><ellipse cx="50" cy="50" rx="11" ry="14"/></svg>
+            </span>
+            <span class="preview-symbol">
+              <svg viewBox="0 0 100 100"><g><ellipse cx="34" cy="34" rx="23" ry="27" transform="rotate(-45 34 34)"/><ellipse cx="66" cy="34" rx="23" ry="27" transform="rotate(45 66 34)"/><ellipse cx="66" cy="66" rx="23" ry="27" transform="rotate(135 66 66)"/><ellipse cx="34" cy="66" rx="23" ry="27" transform="rotate(225 34 66)"/><circle cx="50" cy="50" r="15"/></g></svg>
+            </span>
+            <span class="preview-symbol">
+              <svg viewBox="0 0 100 100"><path class="rounded-star-preview" d="M50 10 61 37 90 39 68 58 75 87 50 71 25 87 32 58 10 39 39 37Z"/></svg>
+            </span>
+          </div>
+          <h3>Four shapes, four lanes</h3>
+          <p>Flower, bow, clover and rounded star. Tap the matching lane as each shape reaches the target.</p>
+
+          <div class="sound-settings">
+            <label for="percussionSelect">Key sound</label>
+            <div class="select-row">
+              <select id="percussionSelect">
+                <option value="jazz">Jazz kit</option>
+                <option value="kick">Soft kick</option>
+                <option value="snare">Soft snare</option>
+                <option value="stick">Side stick</option>
+                <option value="hat">Closed hi-hat</option>
+                <option value="off">Off</option>
+              </select>
+              <button id="testPercussionButton" class="sound-test" type="button">Try</button>
+            </div>
+            <div class="volume-row">
+              <span>Volume</span>
+              <input id="percussionVolume" type="range" min="0" max="30" step="1" value="16" aria-label="Percussion volume">
+              <output id="percussionVolumeLabel" for="percussionVolume">16%</output>
+            </div>
+          </div>
+
+          <button id="recurateButton" class="text-button">Choose another song</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" aria-label="Rhythm game">
+      <canvas id="gameCanvas"></canvas>
+      <div class="hud top-hud" aria-hidden="true">
+        <div class="hud-chip track-chip"><span id="hudTrack">Mallowbeat</span><small id="hudTime">00:00 / 00:00</small></div>
+        <div class="hud-chip score-chip"><small>SCORE</small><strong id="scoreValue">000000</strong></div>
+      </div>
+      <div class="hud side-hud" aria-hidden="true">
+        <div class="combo-bubble"><small>COMBO</small><strong id="comboValue">0</strong></div>
+        <div class="bloom-wrap">
+          <span>BLOOM</span>
+          <div class="bloom-track"><i id="bloomFill"></i></div>
+        </div>
+      </div>
+      <div id="countdown" class="countdown" aria-hidden="true"></div>
+      <button id="pauseButton" class="pause-button" aria-label="Pause">Ⅱ</button>
+      <div id="pauseOverlay" class="pause-overlay" aria-live="polite">
+        <div class="glass-card pause-card">
+          <h2>Paused</h2>
+          <p>Your song is waiting.</p>
+          <button id="resumeButton" class="primary-button">Resume</button>
+          <button id="quitButton" class="text-button">Leave this song</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen" aria-live="polite">
+      <div class="result-layout glass-card">
+        <div id="rankSeal" class="rank-seal">S</div>
+        <p class="eyebrow">SONG COMPLETE</p>
+        <h2 id="resultTitle">Beautiful timing!</h2>
+        <p id="resultTrack" class="result-track"></p>
+        <div class="result-grid">
+          <div><small>SCORE</small><strong id="finalScore">0</strong></div>
+          <div><small>ACCURACY</small><strong id="finalAccuracy">0%</strong></div>
+          <div><small>MAX COMBO</small><strong id="finalCombo">0</strong></div>
+          <div><small>PERFECT</small><strong id="finalPerfect">0</strong></div>
+        </div>
+        <div class="result-actions">
+          <button id="retryButton" class="primary-button">Play this song again</button>
+          <button id="newMixButton" class="secondary-button">Choose another song</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="errorToast" class="error-toast" role="alert"></div>
+  </main>
+
+  <script src="analysis-core.js"></script>
+  <script src="app.js"></script>
+  <script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
+</body>
+</html>

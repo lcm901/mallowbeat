@@ -1,0 +1,14 @@
+{
+  "name": "Mallowbeat",
+  "short_name": "Mallowbeat",
+  "description": "Turn a local song into a tiny pink rhythm game.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffafb",
+  "theme_color": "#fffafb",
+  "icons": [
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
